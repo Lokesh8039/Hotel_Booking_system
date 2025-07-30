@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-js6$7j8!8sdy1*h_2%-*7!8o&co2p3(-t=h6)%5dy$_rn_dom(
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['oyo-clone-django-2.onrender.com']
+ALLOWED_HOSTS = ['oyo-clone-django-2.onrender.com','localhost']
 
 
 
@@ -57,15 +57,15 @@ import dj_database_url
 from decouple import config
 
 load_dotenv()
-DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
-}
-
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         'NAME': BASE_DIR / 'db.sqlite3'
-#     }}
+#     'default': dj_database_url.config(default=config('DATABASE_URL'))
+# }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        'NAME': BASE_DIR / 'db.sqlite3'
+    }}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
