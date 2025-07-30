@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-js6$7j8!8sdy1*h_2%-*7!8o&co2p3(-t=h6)%5dy$_rn_dom(
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['oyo-clone-django-2.onrender.com','localhost']
+ALLOWED_HOSTS = ['oyo-clone-django-2.onrender.com','localhost',"127.0.0.1",'13.203.218.30']
 
 
 
