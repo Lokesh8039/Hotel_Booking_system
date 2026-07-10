@@ -703,20 +703,27 @@ def db_management(request):
                         }
                     ]
                     
+                    # Pre-delete conflicting accounts to prevent duplicate key constraint violations in PostgreSQL
+                    from django.contrib.auth.models import User
+                    for vd in vendors_data:
+                        User.objects.filter(username=vd["username"]).delete()
+                        HotelVendor.objects.filter(phone_number=vd["phone"]).delete()
+                        
+                    for cust in customers_data:
+                        User.objects.filter(username=cust["username"]).delete()
+                        HotelUser.objects.filter(phone_number=cust["phone"]).delete()
+
                     created_vendors = []
                     for vd in vendors_data:
-                        vendor, created = HotelVendor.objects.get_or_create(
+                        vendor = HotelVendor.objects.create(
                             username=vd["username"],
-                            defaults={
-                                "email": vd["email"],
-                                "phone_number": vd["phone"],
-                                "business_name": vd["business"],
-                                "is_verified": True
-                            }
+                            email=vd["email"],
+                            phone_number=vd["phone"],
+                            business_name=vd["business"],
+                            is_verified=True
                         )
-                        if created:
-                            vendor.set_password(vd["password"])
-                            vendor.save()
+                        vendor.set_password(vd["password"])
+                        vendor.save()
                         created_vendors.append(vendor)
 
                     # 1b. Create default customer users
@@ -742,17 +749,14 @@ def db_management(request):
                     ]
                     
                     for cust in customers_data:
-                        user, created = HotelUser.objects.get_or_create(
+                        user = HotelUser.objects.create(
                             username=cust["username"],
-                            defaults={
-                                "email": cust["email"],
-                                "phone_number": cust["phone"],
-                                "is_verified": True
-                            }
+                            email=cust["email"],
+                            phone_number=cust["phone"],
+                            is_verified=True
                         )
-                        if created:
-                            user.set_password(cust["password"])
-                            user.save()
+                        user.set_password(cust["password"])
+                        user.save()
 
                     # 2. Create standard amenities
                     amenity_list = [
