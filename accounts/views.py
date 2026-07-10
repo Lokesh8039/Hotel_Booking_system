@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect ,HttpResponse,HttpResponseRedirect
 from .models import HotelUser , HotelVendor,Hotel,Ameneties,HotelImages,HotelBooking, RoomType, PromoCode, Wishlist, Review
 from django.db.models import Q
 from django.contrib import messages
-from .utils import generateRandomToken,sendEmailToken,sendOTPtoEmail,sendEmailToken_vendor,generateSlug
+from .utils import generateRandomToken,sendEmailToken,sendOTPtoEmail,sendEmailToken_vendor,generateSlug,send_mail_async
 from django.contrib.auth import authenticate ,login,logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.text import slugify
@@ -504,7 +504,7 @@ def payment_success(request):
             f"- Team Hotel Booking System"
         )
 
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+        send_mail_async(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=True)
         messages.success(request, "Booking Success! Confirmation sent to your email.")
 
     return redirect('/')
