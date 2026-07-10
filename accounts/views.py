@@ -671,19 +671,88 @@ def db_management(request):
                     PromoCode.objects.all().delete()
                     Ameneties.objects.all().delete()
 
-                    # 1. Create or get default vendor
-                    vendor, created = HotelVendor.objects.get_or_create(
-                        username="grand_vendor",
-                        defaults={
+                    # 1. Create default vendors
+                    vendors_data = [
+                        {
+                            "username": "grand_vendor",
                             "email": "vendor@grandhotels.com",
-                            "phone_number": "9876543210",
-                            "business_name": "Grand Hotels Group",
-                            "is_verified": True
+                            "phone": "9876543210",
+                            "business": "Grand Hotels Group",
+                            "password": "grand123"
+                        },
+                        {
+                            "username": "breeze_vendor",
+                            "email": "breeze@vendor.com",
+                            "phone": "9876543211",
+                            "business": "Breeze Staycations",
+                            "password": "vendor123"
+                        },
+                        {
+                            "username": "alpine_vendor",
+                            "email": "alpine@vendor.com",
+                            "phone": "9876543212",
+                            "business": "Alpine Resorts Ltd.",
+                            "password": "vendor123"
+                        },
+                        {
+                            "username": "heritage_vendor",
+                            "email": "heritage@vendor.com",
+                            "phone": "9876543213",
+                            "business": "Heritage Hospitality",
+                            "password": "vendor123"
                         }
-                    )
-                    if created:
-                        vendor.set_password("grand123")
-                        vendor.save()
+                    ]
+                    
+                    created_vendors = []
+                    for vd in vendors_data:
+                        vendor, created = HotelVendor.objects.get_or_create(
+                            username=vd["username"],
+                            defaults={
+                                "email": vd["email"],
+                                "phone_number": vd["phone"],
+                                "business_name": vd["business"],
+                                "is_verified": True
+                            }
+                        )
+                        if created:
+                            vendor.set_password(vd["password"])
+                            vendor.save()
+                        created_vendors.append(vendor)
+
+                    # 1b. Create default customer users
+                    customers_data = [
+                        {
+                            "username": "lokesh_customer",
+                            "email": "customer1@gfg.com",
+                            "phone": "8765432100",
+                            "password": "customer123"
+                        },
+                        {
+                            "username": "rahul_customer",
+                            "email": "customer2@gfg.com",
+                            "phone": "8765432101",
+                            "password": "customer123"
+                        },
+                        {
+                            "username": "priya_customer",
+                            "email": "customer3@gfg.com",
+                            "phone": "8765432102",
+                            "password": "customer123"
+                        }
+                    ]
+                    
+                    for cust in customers_data:
+                        user, created = HotelUser.objects.get_or_create(
+                            username=cust["username"],
+                            defaults={
+                                "email": cust["email"],
+                                "phone_number": cust["phone"],
+                                "is_verified": True
+                            }
+                        )
+                        if created:
+                            user.set_password(cust["password"])
+                            user.save()
 
                     # 2. Create standard amenities
                     amenity_list = [
@@ -729,7 +798,7 @@ def db_management(request):
                             hotel_location=f"{loc}, India",
                             hotel_price=price,
                             hotel_offer_price=offer_price,
-                            hotel_owner=vendor,
+                            hotel_owner=created_vendors[i % len(created_vendors)],
                             is_active=True
                         )
                         
