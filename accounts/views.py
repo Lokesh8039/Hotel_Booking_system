@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate ,login,logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.text import slugify
 import random
+import os
 from django.core.mail import send_mail
 def login_page(request):
     if request.user.is_authenticated:
