@@ -644,11 +644,12 @@ def db_management(request):
                 static_seed_dir = os.path.join(settings.BASE_DIR, 'static', 'seed_images')
                 
                 os.makedirs(media_hotels_dir, exist_ok=True)
-                for img_idx in range(1, 6):
-                    src_file = os.path.join(static_seed_dir, f'hotel_{img_idx}.jpg')
-                    dest_file = os.path.join(media_hotels_dir, f'hotel_{img_idx}.jpg')
-                    if os.path.exists(src_file) and not os.path.exists(dest_file):
-                        shutil.copy(src_file, dest_file)
+                if os.path.exists(static_seed_dir):
+                    for filename in os.listdir(static_seed_dir):
+                        src_file = os.path.join(static_seed_dir, filename)
+                        dest_file = os.path.join(media_hotels_dir, filename)
+                        if os.path.isfile(src_file) and not os.path.exists(dest_file):
+                            shutil.copy(src_file, dest_file)
 
                 # 1. Create or get default vendor
                 vendor, created = HotelVendor.objects.get_or_create(
@@ -739,13 +740,29 @@ def db_management(request):
                         defaults={"price": price * 1.5, "capacity": 3, "total_rooms": 3}
                     )
                     
-                    # Associate ALL 5 images with this hotel
-                    for img_idx in range(1, 6):
-                        image_filename = f"hotels/hotel_{img_idx}.jpg"
-                        HotelImages.objects.get_or_create(
-                            hotel=hotel,
-                            image=image_filename
-                        )
+                    # Dynamic unique image assignment from the 25+ seed images
+                    all_images = []
+                    if os.path.exists(static_seed_dir):
+                        all_images = sorted([
+                            f for f in os.listdir(static_seed_dir)
+                            if f.lower().endswith(('.jpg', '.jpeg')) and 'logo' not in f.lower()
+                        ])
+                    
+                    if all_images:
+                        # Give each hotel 5 images, starting with a unique one based on hotel index
+                        for offset in range(5):
+                            img_filename = all_images[(i + offset) % len(all_images)]
+                            HotelImages.objects.get_or_create(
+                                hotel=hotel,
+                                image=f"hotels/{img_filename}"
+                            )
+                    else:
+                        # Fallback if seed folder is somehow empty
+                        for img_idx in range(1, 6):
+                            HotelImages.objects.get_or_create(
+                                hotel=hotel,
+                                image=f"hotels/hotel_{img_idx}.jpg"
+                            )
 
                 # 4. Create promo codes
                 import datetime
