@@ -4,7 +4,7 @@ A premium, production-ready Django web application for search, booking, and mana
 
 ---
 
-## 🚀 Features
+## Features
 
 ### For Customers:
 * **Interactive Search**: Browse hotels by location, pricing, and availability.
@@ -22,7 +22,7 @@ A premium, production-ready Django web application for search, booking, and mana
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 * **Backend**: Django 6.0 (Python)
 * **Frontend**: HTML5, Vanilla CSS, JavaScript
@@ -34,7 +34,7 @@ A premium, production-ready Django web application for search, booking, and mana
 
 ---
 
-## 💻 Local Setup Instructions
+## Local Setup Instructions
 
 Follow these steps to run the application locally on your computer:
 
@@ -99,7 +99,7 @@ Visit the local website at `http://127.0.0.1:8000/`.
 
 ---
 
-## ☁️ Deploying on Render (Free Tier)
+## Deploying on Render (Free Tier)
 
 This application is pre-configured for seamless production hosting on **Render** (for the web app) and **Neon.tech** (for a permanent free PostgreSQL database).
 
@@ -132,5 +132,5 @@ Add the following key-value pairs under the **Environment** tab in Render:
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
