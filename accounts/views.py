@@ -671,7 +671,7 @@ def db_management(request):
                     PromoCode.objects.all().delete()
                     Ameneties.objects.all().delete()
 
-                    # 1. Create default vendors
+                    # 1. Define default vendors and customers data
                     vendors_data = [
                         {
                             "username": "grand_vendor",
@@ -703,30 +703,6 @@ def db_management(request):
                         }
                     ]
                     
-                    # Pre-delete conflicting accounts to prevent duplicate key constraint violations in PostgreSQL
-                    from django.contrib.auth.models import User
-                    for vd in vendors_data:
-                        User.objects.filter(username=vd["username"]).delete()
-                        HotelVendor.objects.filter(phone_number=vd["phone"]).delete()
-                        
-                    for cust in customers_data:
-                        User.objects.filter(username=cust["username"]).delete()
-                        HotelUser.objects.filter(phone_number=cust["phone"]).delete()
-
-                    created_vendors = []
-                    for vd in vendors_data:
-                        vendor = HotelVendor.objects.create(
-                            username=vd["username"],
-                            email=vd["email"],
-                            phone_number=vd["phone"],
-                            business_name=vd["business"],
-                            is_verified=True
-                        )
-                        vendor.set_password(vd["password"])
-                        vendor.save()
-                        created_vendors.append(vendor)
-
-                    # 1b. Create default customer users
                     customers_data = [
                         {
                             "username": "lokesh_customer",
@@ -748,6 +724,31 @@ def db_management(request):
                         }
                     ]
                     
+                    # Pre-delete conflicting accounts to prevent duplicate key constraint violations in PostgreSQL
+                    from django.contrib.auth.models import User
+                    for vd in vendors_data:
+                        User.objects.filter(username=vd["username"]).delete()
+                        HotelVendor.objects.filter(phone_number=vd["phone"]).delete()
+                        
+                    for cust in customers_data:
+                        User.objects.filter(username=cust["username"]).delete()
+                        HotelUser.objects.filter(phone_number=cust["phone"]).delete()
+
+                    # Create vendors
+                    created_vendors = []
+                    for vd in vendors_data:
+                        vendor = HotelVendor.objects.create(
+                            username=vd["username"],
+                            email=vd["email"],
+                            phone_number=vd["phone"],
+                            business_name=vd["business"],
+                            is_verified=True
+                        )
+                        vendor.set_password(vd["password"])
+                        vendor.save()
+                        created_vendors.append(vendor)
+
+                    # Create customers
                     for cust in customers_data:
                         user = HotelUser.objects.create(
                             username=cust["username"],
