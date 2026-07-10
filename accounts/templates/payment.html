@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <p>Redirecting to secure payment...</p>
+
+  <script>
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Hotel booking System Booking",
+        "description": "Hotel Payment",
+        "order_id": "{{ payment.id }}",
+        "handler": function (response){
+            // Redirect to success page with full reservation parameters and payment IDs
+            window.location.href = "/account/payment/success/?hotel_id={{ hotel_id }}&start_date={{ start_date }}&end_date={{ end_date }}&room_type_id={{ room_type_id }}&promo_id={{ promo_id }}&order_id=" + response.razorpay_order_id + "&payment_id=" + response.razorpay_payment_id;
+        },
+        "modal": {
+            "ondismiss": function(){
+                alert("Payment cancelled!");
+                window.history.back();
+            }
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    window.onload = function(){ rzp1.open(); }
+  </script>
+</body>
+</html>

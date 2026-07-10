@@ -1,66 +1,321 @@
 {% extends "utils/base.html" %}
 
 {% block start %}
-<div class="container my-5 py-5">
-  <div class="card shadow-lg border-0 rounded-4 p-4">
-    <div class="card-body">
-      
- 
-      <h2 class="card-title fw-bold mb-3">{{ hotel.hotel_name }}</h2>
-
-      <div class="mb-3">
-        <span class="text-muted me-2" style="text-decoration: line-through;">₹{{ hotel.hotel_price }}</span>
-        <span class="badge bg-success fs-6">₹{{ hotel.hotel_offer_price }}</span>
-      </div>
-
-
-      <p class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>{{ hotel.hotel_location }}</p>
-
-   
-      <div class="mb-3">
-  {% for amenity in hotel.ameneties.all %}
-    <span class="badge bg-primary me-1">{{ amenity.name }}</span>
-  {% endfor %}
-      </div>
-
-
-      <p class="mt-4">{{ hotel.hotel_description|safe }}</p>
-
-
-      <div class="row mt-4">
-        {% for image in hotel.hotel_images.all %}
-        <div class="col-6 col-md-3 mb-3">
-          <img src="/media/{{ image.image }}" class="img-fluid rounded shadow-sm" style="height: 150px; object-fit: cover;" alt="Hotel Image">
-        </div>
-        {% endfor %}
-      </div>
-
-
-      {% if request.user.is_authenticated %}
-        <form method="POST" class="mt-5">
-          {% csrf_token %}
-          {% include "utils/alerts.html" %}
-
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Start Date</label>
-              <input type="date" name="start_date" class="form-control shadow-sm" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">End Date</label>
-              <input type="date" name="end_date" class="form-control shadow-sm" required>
-            </div>
+<div class="container my-5 pt-5 pb-5">
+  <div class="row">
+    <!-- Main Hotel Details -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap mb-3">
+          <div>
+            <h1 class="fw-bold text-dark mb-2" style="font-size: 2.5rem;">{{ hotel.hotel_name }}</h1>
+            <p class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ hotel.hotel_location }}</p>
           </div>
-
-          <button type="submit" class="btn btn-danger mt-4 w-100 shadow">Book Now</button>
-        </form>
-      {% else %}
-        <div class="mt-5 text-center">
-          <a href="{% url 'login_page' %}" class="btn btn-success btn-lg shadow">Login to Book</a>
+          {% if avg_rating %}
+            <div class="text-end">
+              <span class="badge bg-warning text-dark fs-5 py-2 px-3 rounded-3 d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-star-fill"></i> {{ avg_rating|floatformat:1 }}
+              </span>
+              <p class="text-muted small mt-1 mb-0">{{ reviews.count }} review{{ reviews.count|pluralize }}</p>
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
+
+        <!-- Amenities -->
+        <div class="mb-4 d-flex flex-wrap gap-2">
+          {% for amenity in hotel.ameneties.all %}
+            <span class="badge bg-light text-dark border py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2 small">
+              {% if amenity.icon %}
+                <img src="{{ amenity.icon.url }}" width="16" height="16" alt="">
+              {% endif %}
+              {{ amenity.name }}
+            </span>
+          {% endfor %}
+        </div>
+
+        <hr class="my-4 opacity-10">
+
+        <!-- Airbnb-Style Image Gallery -->
+        <h4 class="fw-bold text-dark mb-3">Photo Gallery</h4>
+        <div class="gallery-grid mb-4 shadow-sm">
+          {% for image in hotel.hotel_images.all %}
+            {% if forloop.first %}
+              <div class="gallery-item-main">
+                <img src="{{ image.image.url }}" class="gallery-image" alt="Main Hotel View">
+              </div>
+            {% else %}
+              {% if forloop.counter <= 3 %}
+                <div class="gallery-item">
+                  <img src="{{ image.image.url }}" class="gallery-image" alt="Hotel View">
+                </div>
+              {% endif %}
+            {% endif %}
+          {% empty %}
+            <div class="p-5 text-center bg-light w-100 rounded-3" style="grid-column: span 3;">
+              <i class="bi bi-images text-muted display-6"></i>
+              <p class="text-muted small mt-2">No gallery images uploaded for this hotel yet.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+        <h4 class="fw-bold text-dark mb-3">About this place</h4>
+        <div class="text-muted" style="line-height: 1.8; font-size: 0.95rem;">
+          {{ hotel.hotel_description|safe }}
+        </div>
+      </div>
+
+      <!-- Reviews Section -->
+      <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+        <h3 class="fw-bold text-dark mb-4">Guest Reviews</h3>
+
+        <!-- Review Submission Form -->
+        {% if request.user.is_authenticated %}
+          <div class="bg-light p-4 rounded-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-chat-heart text-danger me-2"></i>Share your experience</h5>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted small">Your Rating</label>
+                <div class="d-flex gap-3">
+                  {% for i in "12345" %}
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="rating" id="inlineRadio{{ i }}" value="{{ i }}" {% if i == "5" %}checked{% endif %}>
+                      <label class="form-check-label text-dark fw-bold" for="inlineRadio{{ i }}">{{ i }} <i class="bi bi-star-fill text-warning"></i></label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted small">Review Description</label>
+                <textarea class="form-control" name="comment" rows="3" placeholder="Tell other travelers about your stay..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-warning fw-bold text-dark shadow-sm px-4">Submit Review</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="alert alert-light border rounded-4 text-center p-3 mb-4">
+            <p class="mb-2 text-muted small">Want to leave a review?</p>
+            <a href="{% url 'login_page' %}" class="btn btn-outline-warning btn-sm fw-bold px-3">Login to write a review</a>
+          </div>
+        {% endif %}
+
+        <!-- Review list -->
+        <div class="d-flex flex-column gap-3">
+          {% for r in reviews %}
+            <div class="border-bottom pb-3 mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px;">{{ r.user.first_name|slice:":1"|upper }}</span>
+                  <span class="fw-bold small text-dark">{{ r.user.first_name }} {{ r.user.last_name }}</span>
+                </div>
+                <div>
+                  <span class="text-warning fw-bold small">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= r.rating %}
+                        <i class="bi bi-star-fill"></i>
+                      {% else %}
+                        <i class="bi bi-star text-muted"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </span>
+                  <span class="text-muted small ms-2">{{ r.created_at|date:"M d, Y" }}</span>
+                </div>
+              </div>
+              <p class="text-muted small m-0 ps-4">{{ r.comment }}</p>
+            </div>
+          {% empty %}
+            <p class="text-muted small text-center my-4">No reviews yet. Be the first to leave a review!</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Sidebar Panel -->
+    <div class="col-lg-4">
+      <div class="card shadow border-0 rounded-4 p-4 sticky-top" style="top: 100px; z-index: 90; max-height: calc(100vh - 140px); overflow-y: auto;">
+        <h4 class="fw-bold text-dark mb-4">Book Your Stay</h4>
+
+        {% if request.user.is_authenticated %}
+          <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Room Type Selection -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-muted small">Select Room Type</label>
+              <select class="form-select py-2 border rounded-3 bg-light" name="room_type" id="room_type_select" required>
+                {% for room in room_types %}
+                  <option value="{{ room.id }}" data-price="{{ room.price }}">
+                    {{ room.name }} (Max: {{ room.capacity }} guests) - ₹{{ room.price }}/night
+                  </option>
+                {% empty %}
+                  <option value="">No rooms available</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Booking Dates -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-muted small">Start Date</label>
+              <input type="date" name="start_date" id="start_date" class="form-control py-2 border rounded-3 bg-light" required>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label fw-semibold text-muted small">End Date</label>
+              <input type="date" name="end_date" id="end_date" class="form-control py-2 border rounded-3 bg-light" required>
+            </div>
+
+            <!-- Promo Code Input -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold text-muted small">Promo Code</label>
+              <div class="input-group">
+                <input type="text" name="promo_code" id="promo_code" class="form-control py-2 border bg-light" placeholder="e.g. WELCOME10">
+                <button type="button" class="btn btn-dark fw-bold px-3" id="apply_promo_btn">Apply</button>
+              </div>
+              <div id="promo_msg" class="small mt-1 d-none"></div>
+            </div>
+
+            <!-- Pricing Summary Card Box -->
+            <div class="card bg-light border-0 p-3 mb-4 rounded-3 d-none animate__animated animate__fadeIn" id="pricingSummaryBox">
+              <h6 class="fw-bold text-dark mb-3"><i class="bi bi-receipt me-1"></i> Price Summary</h6>
+              <div class="d-flex justify-content-between small text-muted mb-2">
+                <span>Base price (<span id="summary_nights">1</span> night<span id="summary_plural">s</span>)</span>
+                <span>₹<span id="summary_base_price">0.00</span></span>
+              </div>
+              <div class="d-flex justify-content-between small text-success mb-2 d-none" id="summary_discount_row">
+                <span>Promo Discount (<span id="summary_discount_pct">0</span>%)</span>
+                <span>-₹<span id="summary_discount_val">0.00</span></span>
+              </div>
+              <hr class="my-2 opacity-10">
+              <div class="d-flex justify-content-between fw-bold text-dark fs-5">
+                <span>Total Payable</span>
+                <span>₹<span id="summary_total_payable">0.00</span></span>
+              </div>
+            </div>
+
+            <hr class="my-4 opacity-10">
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg fw-bold text-white shadow-sm py-3 rounded-3">
+                <i class="bi bi-credit-card me-1"></i> Proceed to Pay
+              </button>
+            </div>
+
+          </form>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-lock text-muted display-4"></i>
+            <h5 class="fw-bold mt-3">Authentication Required</h5>
+            <p class="text-muted small">You need to sign in as a customer to book rooms.</p>
+            <a href="{% url 'login_page' %}" class="btn btn-warning fw-bold text-dark px-4 py-2 mt-2 w-100 rounded-3 shadow-sm">Sign In</a>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const roomSelect = document.getElementById('room_type_select');
+    const promoInput = document.getElementById('promo_code');
+    const applyPromoBtn = document.getElementById('apply_promo_btn');
+    
+    const pricingSummaryBox = document.getElementById('pricingSummaryBox');
+    const summaryNights = document.getElementById('summary_nights');
+    const summaryPlural = document.getElementById('summary_plural');
+    const summaryBasePrice = document.getElementById('summary_base_price');
+    const summaryDiscountRow = document.getElementById('summary_discount_row');
+    const summaryDiscountPct = document.getElementById('summary_discount_pct');
+    const summaryDiscountVal = document.getElementById('summary_discount_val');
+    const summaryTotalPayable = document.getElementById('summary_total_payable');
+    const promoMsg = document.getElementById('promo_msg');
+
+    let appliedDiscountPct = 0;
+
+    function calculatePrice() {
+      const startVal = startDateInput.value;
+      const endVal = endDateInput.value;
+      
+      if (!startVal || !endVal) {
+        pricingSummaryBox.classList.add('d-none');
+        return;
+      }
+
+      const start = new Date(startVal);
+      const end = new Date(endVal);
+      const diffTime = end - start;
+      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (days <= 0) {
+        pricingSummaryBox.classList.add('d-none');
+        return;
+      }
+
+      const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+      if (!selectedOption) return;
+      const rate = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+
+      const basePrice = rate * days;
+      let discountVal = (appliedDiscountPct / 100.0) * basePrice;
+      let totalPayable = basePrice - discountVal;
+
+      // Update Summary Fields
+      summaryNights.innerText = days;
+      summaryPlural.innerText = days > 1 ? 's' : '';
+      summaryBasePrice.innerText = basePrice.toFixed(2);
+      
+      if (appliedDiscountPct > 0) {
+        summaryDiscountRow.classList.remove('d-none');
+        summaryDiscountPct.innerText = appliedDiscountPct;
+        summaryDiscountVal.innerText = discountVal.toFixed(2);
+      } else {
+        summaryDiscountRow.classList.add('d-none');
+      }
+
+      summaryTotalPayable.innerText = totalPayable.toFixed(2);
+      pricingSummaryBox.classList.remove('d-none');
+    }
+
+    startDateInput.addEventListener('change', calculatePrice);
+    endDateInput.addEventListener('change', calculatePrice);
+    roomSelect.addEventListener('change', calculatePrice);
+
+    applyPromoBtn.addEventListener('click', function() {
+      const code = promoInput.value.trim();
+      if (!code) {
+        promoMsg.classList.remove('d-none', 'text-success');
+        promoMsg.classList.add('text-danger');
+        promoMsg.innerText = 'Please enter a promo code.';
+        return;
+      }
+
+      fetch(`/account/check-promo/?code=${encodeURIComponent(code)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.valid) {
+            appliedDiscountPct = parseFloat(data.discount_percentage) || 0;
+            promoMsg.classList.remove('d-none', 'text-danger');
+            promoMsg.classList.add('text-success');
+            promoMsg.innerText = `Promo applied! ${appliedDiscountPct}% off.`;
+            calculatePrice();
+          } else {
+            appliedDiscountPct = 0;
+            promoMsg.classList.remove('d-none', 'text-success');
+            promoMsg.classList.add('text-danger');
+            promoMsg.innerText = data.message || 'Invalid promo code.';
+            calculatePrice();
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          promoMsg.classList.remove('d-none', 'text-success');
+          promoMsg.classList.add('text-danger');
+          promoMsg.innerText = 'Error validating promo code.';
+        });
+    });
+  });
+</script>
 {% endblock %}
+

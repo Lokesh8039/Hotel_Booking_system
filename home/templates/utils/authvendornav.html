@@ -1,8 +1,10 @@
-<nav class="navbar navbar-expand-lg shadow-lg p-3" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); border-radius: 0 0 20px 20px;">
+{% load static %}
+<nav class="navbar navbar-expand-lg shadow-lg p-3"
+  style="background: linear-gradient(135deg, #ff416c, #ff4b2b); border-radius: 0 0 20px 20px;">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center text-white fw-bold" href="/">
-      <img src="https://i.pinimg.com/736x/60/20/3c/60203c06b364a8764b54bba1a35290c2.jpg" height="40" class="me-2" alt="Logo">
-      OYO Clone
+      <img src="{% static 'logo.png' %}" height="40" class="me-2" alt="Logo">
+      Hotel Booking System
     </a>
 
     <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -19,7 +21,7 @@
           <a class="nav-link nav-glass text-white px-4 py-2 mx-2 rounded" href="{% url 'logout_vendor' %}">Logout</a>
         </li>
         <li class="nav-item">
-          <span class="nav-link text-white fw-semibold px-2">👤 {{  }}</span>
+          <span class="nav-link text-white fw-semibold px-2">👤 {{ }}</span>
         </li>
       </ul>
     </div>

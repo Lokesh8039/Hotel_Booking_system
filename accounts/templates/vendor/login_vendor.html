@@ -1,51 +1,72 @@
-
 {% extends "utils/vendor_base.html" %}
 
 {% block start %}
+<div class="container my-5 pt-5 pb-5">
+  <div class="row justify-content-center">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Colored Header -->
+        <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <h3 class="fw-bold m-0">Vendor Portal</h3>
+          <p class="small m-0 opacity-75">Sign in to manage your bookings</p>
+        </div>
 
+        <!-- Form Card Body -->
+        <div class="card-body p-4 p-sm-5 bg-white">
+          <form method="POST" id="vendorLoginForm">
+            {% include "utils/alerts.html" %}
+            {% csrf_token %}
 
+            <!-- Email Address Input -->
+            <div class="mb-3">
+              <label for="vendorEmail" class="form-label fw-semibold text-muted small">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-envelope"></i></span>
+                <input id="vendorEmail" type="email" name="email" class="form-control border-start-0 ps-0 bg-light" placeholder="vendor@example.com" required>
+              </div>
+              <div class="form-text small text-muted">We will never share your email with third parties.</div>
+            </div>
 
-<div class="container mt-5 pt-5 pb-5">
+            <!-- Password Input -->
+            <div class="mb-4">
+              <label for="vendorPassword" class="form-label fw-semibold text-muted small">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-lock"></i></span>
+                <input id="vendorPassword" type="password" name="password" class="form-control border-start-0 ps-0 bg-light" placeholder="••••••••" required>
+              </div>
+            </div>
 
-  <div class="col-6 mx-auto card shadow p-4" style="border:none">
-    <h1>Vendor Login</h1>
-      <form method="POST">
-        {% include "utils/alerts.html" %}
-        {% csrf_token %}
+            <div class="d-grid gap-2 mb-4">
+              <button type="submit" class="btn btn-primary fw-bold py-2.5 rounded-3 shadow-sm" style="background-color: #764ba2; border-color: #764ba2;">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Vendor Sign In
+              </button>
+              <button type="button" class="btn btn-outline-secondary fw-bold py-2.5 rounded-3" onclick="sendOtpVendor()">
+                <i class="bi bi-shield-lock me-1"></i> Sign In With OTP
+              </button>
+            </div>
+          </form>
 
-          <div class="mb-3">
-            <label for="enail" class="form-label">Email address</label>
-            <input id="email" type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp">
-            <div id="email" class="form-text">We'll never share your email with anyone else.</div>
+          <hr class="my-4 opacity-10">
+
+          <div class="text-center">
+            <p class="small text-muted mb-0">Don't have a vendor account? 
+              <a href="{% url 'register_vendor' %}" class="fw-bold text-decoration-none" style="color: #764ba2;">Register property here</a>
+            </p>
           </div>
-
-          <div class="mb-3">
-            <label for="passwordd" class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" id="password">
-          </div>
-
-          <button type="submit" class="btn btn-primary">Submit</button>
-          <button  type="button" class="btn btn-success" onclick="sendOtp()">Login With OTP</button>
-
-        </form>
+        </div>
+      </div>
+    </div>
   </div>
-  </div>
+</div>
 
-  <script>
-
-    function sendOtp(){
-      var email = document.getElementById('email').value
-      if(email == ""){
-        alert("Email Cannot be blank")
-        return
-      }
-
-      window.location.href = `/account/send_otp_vendor/${email}/`
-
+<script>
+  function sendOtpVendor() {
+    var email = document.getElementById('vendorEmail').value.trim();
+    if (email === "") {
+      alert("Please enter your registered email address to request a vendor OTP.");
+      return;
     }
-
-
+    window.location.href = `/account/send_otp_vendor/${encodeURIComponent(email)}/`;
+  }
 </script>
-
-
 {% endblock %}

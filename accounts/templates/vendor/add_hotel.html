@@ -1,61 +1,85 @@
-
 {% extends "utils/vendor_base.html" %}
 
 {% block start %}
+<div class="container my-5 pt-5 pb-5">
+  <div class="row justify-content-center">
+    <div class="col-11 col-sm-9 col-md-8 col-lg-7 col-xl-6">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Colored Header -->
+        <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <h3 class="fw-bold m-0"><i class="bi bi-house-add me-2"></i>List New Property</h3>
+          <p class="small m-0 opacity-75">Fill in property details to start receiving bookings</p>
+        </div>
 
-<div class="container mt-5 pt-5 pb-5">
+        <!-- Form Body -->
+        <div class="card-body p-4 p-sm-5 bg-white">
+          <form method="POST">
+            {% include "utils/alerts.html" %}
+            {% csrf_token %}
 
-  <div class="col-6 mx-auto card shadow p-4" style="border:none">
-    <h2>Add Hotel</h2>
-      <form method="POST">
-                {% include "utils/alerts.html" %}
-    {% csrf_token %}
-
-          <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Hotel Name</label>
-            <input id="email" type="text" name="hotel_name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-
-          </div>
-
-          <div class="mb-3">
-            <div class="form-floating">
-                <textarea name="hotel_description" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
-                <label for="floatingTextarea">Hotel Description</label>
-              </div> </div>
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Hotel Price</label>
-                <input id="email" type="number" name="hotel_price" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-
+            <!-- Hotel Name -->
+            <div class="mb-3">
+              <label for="hotelName" class="form-label fw-semibold text-muted small">Hotel Name</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-building"></i></span>
+                <input id="hotelName" type="text" name="hotel_name" class="form-control border-start-0 ps-0 bg-light" placeholder="e.g. Grand Orchid Palace" required>
               </div>
+            </div>
 
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Hotel ameneties</label>
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="hotelDesc" class="form-label fw-semibold text-muted small">Property Description</label>
+              <textarea id="hotelDesc" name="hotel_description" class="form-control bg-light" rows="4" placeholder="Tell travelers about your rooms, view, and unique services..." required></textarea>
+            </div>
 
-              <select name="ameneties" class="form-select form-select-sm" multiple aria-label="Small select example">
+            <!-- Price Rows -->
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="hotelPrice" class="form-label fw-semibold text-muted small">Standard Price (₹/night)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0">₹</span>
+                  <input id="hotelPrice" type="number" name="hotel_price" class="form-control border-start-0 ps-0 bg-light" placeholder="e.g. 5000" required>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label for="offerPrice" class="form-label fw-semibold text-muted small">Offer Price (₹/night)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0">₹</span>
+                  <input id="offerPrice" type="number" name="hotel_offer_price" class="form-control border-start-0 ps-0 bg-light" placeholder="e.g. 3999" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+              <label for="hotelLoc" class="form-label fw-semibold text-muted small">Location / Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-geo-alt"></i></span>
+                <input id="hotelLoc" type="text" name="hotel_location" class="form-control border-start-0 ps-0 bg-light" placeholder="e.g. Shimla, Himachal Pradesh" required>
+              </div>
+            </div>
+
+            <!-- Amenities -->
+            <div class="mb-4">
+              <label for="hotelAmenities" class="form-label fw-semibold text-muted small">Amenities Offered</label>
+              <select id="hotelAmenities" name="ameneties" class="form-select bg-light" multiple style="height: 120px;" required>
                 {% for amenetie in ameneties %}
-
-                <option value="{{amenetie.id}}">{{amenetie.name}}</option>
-
+                  <option value="{{ amenetie.id }}">{{ amenetie.name }}</option>
                 {% endfor %}
               </select>
-              </div>
+              <div class="form-text small text-muted">Hold Control (Ctrl) or Command (Cmd) to select multiple.</div>
+            </div>
 
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Hotel Offer Price</label>
-                <input id="email" type="number" name="hotel_offer_price" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-
-              </div>
-
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Hotel Location</label>
-                <input id="email" type="text" name="hotel_location" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-
-              </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-
-        </form>
+            <div class="d-grid gap-2 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg fw-bold text-white py-3 rounded-3" style="background-color: #764ba2; border-color: #764ba2;">
+                Create Listing
+              </button>
+              <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary py-2 rounded-3">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-  </div>
-
-
+</div>
 {% endblock %}

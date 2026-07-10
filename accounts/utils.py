@@ -12,7 +12,7 @@ def generateRandomToken():
 def sendEmailToken(email, token):
     subject = "Verify Your Email Address"
     message = f"""Hi, please verify your email account by clicking this link: 
-    https://oyo-clone-django-2.onrender.com/account/verify-account/{token}
+    https://hotel-booking-system.onrender.com/account/verify-account/{token}
     """
 
     send_mail(subject,message,settings.EMAIL_HOST_USER,[email],fail_silently=False)
@@ -20,7 +20,7 @@ def sendEmailToken(email, token):
 def sendEmailToken_vendor(email, token):
     subject = "Verify Your Email Address"
     message = f"""Hi, please verify your email account by clicking this link: 
-    https://oyo-clone-django-2.onrender.com/account/verify-account_vendor/{token}
+    https://hotel-booking-system.onrender.com/account/verify-account_vendor/{token}
     """
 
     send_mail(subject,message,settings.EMAIL_HOST_USER,[email],fail_silently=False)

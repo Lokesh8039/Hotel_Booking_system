@@ -28,10 +28,21 @@ urlpatterns = [
 
     path('add-hotel/', views.add_hotel , name="add_hotel"),
 
-     path('delete_image/<id>/' , views.delete_image , name="delete_image"),
+     path('delete_image/<id>/<slug>' , views.delete_image , name="delete_image"),
 
     path('upload-images/<slug>/', views.upload_images , name="upload_images"),
 
 path('edit-hotel/<slug>/', views.edit_hotel , name="edit_hotel"),
+path('delete_booking/<id>',views.delete_booking,name='delete_booking'),
 
+
+    path('payment/', views.payment, name='payment'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+
+    path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('cancel-booking/<id>/', views.cancel_booking, name='cancel_booking'),
+    path('wishlist/', views.wishlist_view, name='wishlist_view'),
+    path('wishlist/toggle/<id>/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('check-promo/', views.check_promo, name='check_promo'),
 ]
+

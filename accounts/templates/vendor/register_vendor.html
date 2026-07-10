@@ -1,38 +1,93 @@
 {% extends "utils/vendor_base.html" %}
 
 {% block start %}
-<div class="container mt-5 pt-5 pb-5">
-<div class="col-6 mx-auto card shadow p-4" style="border:none">
-    <h1>Vendor Register</h1>
-<form method="post">
-   {% include "utils/alerts.html" %}
-  {% csrf_token %}
-  <div class="mb-3">
-    <label for="firstName" class="form-label">First Name</label>
-    <input type="text" name="first_name" class="form-control" id="firstName">
+<div class="container my-5 pt-5 pb-5">
+  <div class="row justify-content-center">
+    <div class="col-11 col-sm-9 col-md-8 col-lg-6 col-xl-5">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Colored Header -->
+        <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <h3 class="fw-bold m-0">Vendor Registration</h3>
+          <p class="small m-0 opacity-75">Register your business and list your properties</p>
+        </div>
+
+        <!-- Form Card Body -->
+        <div class="card-body p-4 p-sm-5 bg-white">
+          <form method="POST">
+            {% include "utils/alerts.html" %}
+            {% csrf_token %}
+
+            <!-- First & Last Name row -->
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="firstName" class="form-label fw-semibold text-muted small">First Name</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
+                  <input type="text" name="first_name" class="form-control border-start-0 ps-0 bg-light" id="firstName" placeholder="Jane" required>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label for="lastName" class="form-label fw-semibold text-muted small">Last Name</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
+                  <input type="text" name="last_name" class="form-control border-start-0 ps-0 bg-light" id="lastName" placeholder="Smith" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Business Name Input -->
+            <div class="mb-3">
+              <label for="businessName" class="form-label fw-semibold text-muted small">Business Name</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-briefcase"></i></span>
+                <input type="text" name="business_name" class="form-control border-start-0 ps-0 bg-light" id="businessName" placeholder="e.g. Grand Plaza Hotels" required>
+              </div>
+            </div>
+
+            <!-- Email Address Input -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold text-muted small">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-envelope"></i></span>
+                <input type="email" name="email" class="form-control border-start-0 ps-0 bg-light" id="email" placeholder="partner@example.com" required>
+              </div>
+            </div>
+
+            <!-- Phone Number Input -->
+            <div class="mb-3">
+              <label for="phoneNumber" class="form-label fw-semibold text-muted small">Contact Phone Number</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-telephone"></i></span>
+                <input type="text" name="phone_number" class="form-control border-start-0 ps-0 bg-light" id="phoneNumber" placeholder="e.g. 9876543210" required>
+              </div>
+            </div>
+
+            <!-- Password Input -->
+            <div class="mb-4">
+              <label for="password" class="form-label fw-semibold text-muted small">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-lock"></i></span>
+                <input type="password" name="password" class="form-control border-start-0 ps-0 bg-light" id="password" placeholder="••••••••" required>
+              </div>
+            </div>
+
+            <div class="d-grid mb-4">
+              <button type="submit" class="btn btn-primary fw-bold py-2.5 rounded-3 shadow-sm" style="background-color: #764ba2; border-color: #764ba2;">
+                <i class="bi bi-person-plus me-1"></i> Register Vendor
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4 opacity-10">
+
+          <div class="text-center">
+            <p class="small text-muted mb-0">Already have a vendor partner account? 
+              <a href="{% url 'login_vendor' %}" class="fw-bold text-decoration-none" style="color: #764ba2;">Sign in here</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="mb-3">
-    <label for="lastName" class="form-label">Last Name</label>
-    <input type="text" name="last_name" class="form-control" id="lastName">
-  </div>
-    <div class="mb-3">
-    <label for="business_name" class="form-label">Business Name</label>
-    <input type="text" name="business_name" class="form-control" id="business_name">
-  </div>
-  <div class="mb-3">
-    <label for="email" class="form-label">Email address</label>
-    <input type="email" name="email" class="form-control" id="email">
-  </div>
-  <div class="mb-3">
-    <label for="phoneNumber" class="form-label">Phone Number</label>
-    <input type="text" name="phone_number" class="form-control" id="phoneNumber">
-  </div>
-  <div class="mb-3">
-    <label for="password" class="form-label">Password</label>
-    <input type="password" name="password" class="form-control" id="password">
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-</div>
 </div>
 {% endblock %}

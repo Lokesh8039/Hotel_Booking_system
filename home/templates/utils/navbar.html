@@ -1,50 +1,33 @@
-<nav class="navbar navbar-expand-lg shadow-lg p-3" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); border-radius: 0 0 20px 20px;">
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm p-3 sticky-top"
+  style="background: linear-gradient(135deg, #ff416c, #ff4b2b); border-radius: 0 0 24px 24px; z-index: 1000;">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center text-white fw-bold" href="/" style="font-size: 1.5rem;">
-      <img src="https://i.pinimg.com/736x/60/20/3c/60203c06b364a8764b54bba1a35290c2.jpg" height="40" class="me-2" alt="Logo">
-      OYO Clone
+    <a class="navbar-brand d-flex align-items-center text-white fw-bold" href="/"
+      style="font-size: 1.4rem; letter-spacing: -0.5px;">
+      <img src="{% static 'logo.png' %}" height="38" class="me-2" alt="Logo">
+      Hotel Booking System
     </a>
-    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+    <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav align-items-center gap-2">
         <li class="nav-item">
-          <a class="nav-link nav-glass text-white px-4 py-2 mx-2 rounded" href="/">Home</a>
+          <a class="nav-link nav-glass text-white px-4 py-2 rounded-pill" href="/"><i class="bi bi-compass me-1"></i>
+            Explore</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-glass text-white px-4 py-2 mx-2 rounded" href="{% url 'login_page' %}">Login</a>
+          <a class="nav-link nav-glass text-white px-4 py-2 rounded-pill" href="{% url 'login_page' %}"><i
+              class="bi bi-box-arrow-in-right me-1"></i> Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-glass text-white px-4 py-2 mx-2 rounded" href="{% url 'register' %}">Register</a>
+          <a class="nav-link nav-glass text-white px-4 py-2 rounded-pill" href="{% url 'register' %}"><i
+              class="bi bi-person-plus me-1"></i> Register</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
-
-<style>
-  .nav-link.nav-glass {
-    backdrop-filter: blur(6px);
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease-in-out;
-  }
-
-  .nav-link.nav-glass:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: #fff !important;
-    text-decoration: none;
-    transform: scale(1.05);
-  }
-
-  .navbar-toggler {
-    border-color: rgba(255, 255, 255, 0.5);
-  }
-
-  .navbar-toggler-icon {
-    filter: invert(1);
-  }
-</style>

@@ -1,81 +1,287 @@
 {% extends "utils/vendor_base.html" %}
 
 {% block start %}
-<div class="container mt-5 pt-4">
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <div class="mx-auto col-md-6 text-center mb-4">
-    {% include "utils/alerts.html" %}
-    <a href="{% url 'add_hotel' %}" class="btn btn-success shadow-sm">+ Add Hotel</a>
+<div class="container-fluid px-lg-5 my-5 pt-4">
+  <!-- Alerts and Greeting Header -->
+  <div class="row mb-5 animate__animated animate__fadeIn">
+    <div class="col-12">
+      {% include "utils/alerts.html" %}
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-4 p-4 p-md-5 rounded-4 shadow-sm border" style="background: linear-gradient(135deg, #1e2022, #2c302e); color: #fff;">
+        <div>
+          <span class="badge bg-primary text-uppercase px-3 py-2 mb-2 rounded-pill fw-bold">Management Hub</span>
+          <h1 class="fw-bold m-0 serif-heading text-white" style="font-size: 2.8rem;">Property Control Center</h1>
+          <p class="m-0 text-white-50 mt-1">Welcome back, <strong class="text-warning">{{ user }}</strong>. Here is your dashboard overview.</p>
+        </div>
+        <div>
+          <a href="{% url 'add_hotel' %}" class="btn btn-warning fw-bold text-dark px-4 py-3 shadow-sm rounded-3">
+            <i class="bi bi-plus-lg me-1"></i> List New Property
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-
-  <div class="row">
-    {% for hotel in hotels %}
-      <div class="col-md-4 col-lg-3 mb-4">
-        <div class="card shadow-sm h-100 border-0 rounded-4">
-      
-          {% if hotel.hotel_images.first %}
-            <img src="/media/{{ hotel.hotel_images.first.image }}" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;" alt="{{ hotel.hotel_name }}">
-          {% else %}
-            <img src="https://via.placeholder.com/300x180?text=No+Image" class="card-img-top rounded-top-4" alt="No Image">
-          {% endif %}
-
-       
-          <div class="card-body">
-            <h5 class="card-title fw-bold">{{ hotel.hotel_name }}</h5>
-            <p class="card-text text-muted small">{{ hotel.hotel_description|truncatechars:100 }}</p>
-
-      
-            <div class="mb-2">
-              {% for amenetie in hotel.ameneties.all %}
-                <span class="badge bg-primary me-1 mb-1">{{ amenetie.name }}</span>
-              {% empty %}
-                <span class="badge bg-secondary">No amenities</span>
-              {% endfor %}
-            </div>
+  <!-- Key Metrics Row -->
+  <div class="row g-4 mb-5">
+    <!-- Total Bookings -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-bold text-uppercase d-block mb-1">Total Reservations</span>
+            <h2 class="fw-bold text-dark m-0">{{ total_bookings }}</h2>
           </div>
-
-        
-          <div class="card-footer d-flex justify-content-between p-2 bg-light border-top rounded-bottom-4">
-            <a href="{% url 'upload_images' hotel.hotel_slug %}" class="btn btn-sm btn-outline-success">Images</a>
-            <a href="{% url 'edit_hotel' hotel.hotel_slug %}" class="btn btn-sm btn-outline-warning">Edit</a>
+          <div class="rounded-circle p-3 fs-3 d-flex align-items-center justify-content-center" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; width: 60px; height: 60px;">
+            <i class="bi bi-calendar-check"></i>
           </div>
         </div>
+      </div>
+    </div>
+    
+    <!-- Total Earnings -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-bold text-uppercase d-block mb-1">Gross Earnings</span>
+            <h2 class="fw-bold text-success m-0">₹{{ total_revenue|floatformat:2 }}</h2>
+          </div>
+          <div class="rounded-circle p-3 fs-3 d-flex align-items-center justify-content-center" style="background: rgba(25, 135, 84, 0.1); color: #198754; width: 60px; height: 60px;">
+            <i class="bi bi-currency-rupee"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellations -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-bold text-uppercase d-block mb-1">Cancelled bookings</span>
+            <h2 class="fw-bold text-danger m-0">{{ cancelled_bookings }}</h2>
+          </div>
+          <div class="rounded-circle p-3 fs-3 d-flex align-items-center justify-content-center" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; width: 60px; height: 60px;">
+            <i class="bi bi-x-octagon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytical Charts -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-4"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Revenue Growth (₹)</h5>
+        <div style="max-height: 250px; max-width: 500px; margin: 0 auto; width: 100%; position: relative;">
+          <canvas id="revenueChart" style="height: 220px;"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-4"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Reservations Volume</h5>
+        <div style="max-height: 250px; max-width: 500px; margin: 0 auto; width: 100%; position: relative;">
+          <canvas id="bookingsChart" style="height: 220px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Logs Toggle -->
+  <div class="d-flex justify-content-center mb-5">
+    <button class="btn btn-dark px-5 py-3 rounded-pill shadow-sm fw-bold border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#bookingTableCollapse"
+            aria-expanded="false"
+            aria-controls="bookingTableCollapse"
+            style="background: linear-gradient(135deg, #667eea, #764ba2);">
+      <i class="bi bi-receipt-cutoff me-2"></i> View Booking Transaction Logs
+    </button>
+  </div>
+
+  <!-- Reservations Table log -->
+  <div class="collapse mb-5" id="bookingTableCollapse">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+      <div class="card-body p-0">
+        <div class="p-4 border-bottom bg-light">
+          <h5 class="fw-bold text-dark m-0"><i class="bi bi-list-columns-reverse text-primary me-2"></i>Reservation Log Records</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle text-center mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="py-3">#</th>
+                <th scope="col" class="py-3">Property</th>
+                <th scope="col" class="py-3">Room Type</th>
+                <th scope="col" class="py-3">Customer</th>
+                <th scope="col" class="py-3">Stay Dates</th>
+                <th scope="col" class="py-3">Earning Price</th>
+                <th scope="col" class="py-3">Status</th>
+                <th scope="col" class="py-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if hotelbook %}
+                {% for booking in hotelbook %}
+                <tr>
+                  <th scope="row" class="text-muted">{{ forloop.counter }}</th>
+                  <td class="fw-bold text-dark text-capitalize">{{ booking.hotel.hotel_name }}</td>
+                  <td>{{ booking.room_type.name|default:"Standard Room" }}</td>
+                  <td class="small text-muted">{{ booking.booking_user.first_name }} {{ booking.booking_user.last_name }}</td>
+                  <td class="small">
+                    <span class="badge bg-light text-dark border px-2 py-1">
+                      {{ booking.booking_start_date|date:"Y-m-d" }} to {{ booking.booking_end_date|date:"Y-m-d" }}
+                    </span>
+                  </td>
+                  <td class="fw-bold text-dark">₹{{ booking.price|floatformat:2 }}</td>
+                  <td>
+                    {% if booking.status == 'Confirmed' %}
+                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-bold">Confirmed</span>
+                    {% elif booking.status == 'Cancelled' %}
+                      <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-1 fw-bold">Cancelled</span>
+                    {% else %}
+                      <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-1 fw-bold">{{ booking.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if booking.status != 'Cancelled' and booking.booking_start_date > today %}
+                      <a href="{% url 'delete_booking' booking.id %}" class="btn btn-sm btn-outline-danger px-3 py-1 rounded-pill" onclick="return confirm('Cancel this reservation?');">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                      </a>
+                    {% else %}
+                      <span class="text-muted small">—</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="8" class="text-muted py-5">
+                    <i class="bi bi-clipboard-x display-6"></i><br>
+                    No bookings recorded yet.
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties Header -->
+  <div class="row mb-4">
+    <div class="col-12 border-bottom pb-2">
+      <h3 class="fw-bold text-dark m-0 serif-heading"><i class="bi bi-house text-primary me-2"></i>My Listed Properties</h3>
+    </div>
+  </div>
+
+  <!-- Managed Hotels Cards Grid -->
+  <div class="row g-4">
+    {% for hotel in hotels %}
+      <div class="col-sm-6 col-md-4 col-xl-3">
+        <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden position-relative">
+          {% if hotel.hotel_images.first %}
+            <img src="/media/{{ hotel.hotel_images.first.image }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ hotel.hotel_name }}">
+          {% else %}
+            <img src="https://via.placeholder.com/300x180?text=No+Image" class="card-img-top" style="height: 180px; object-fit: cover;" alt="No Image">
+          {% endif %}
+
+          <div class="card-body p-4 d-flex flex-column justify-content-between">
+            <div>
+              <h5 class="card-title fw-bold text-dark mb-2 text-truncate">{{ hotel.hotel_name }}</h5>
+              <p class="card-text text-muted small mb-3" style="min-height: 40px;">{{ hotel.hotel_description|truncatechars:70 }}</p>
+            </div>
+            <div>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for amenetie in hotel.ameneties.all|slice:":2" %}
+                  <span class="badge bg-light text-dark border small">{{ amenetie.name }}</span>
+                {% empty %}
+                  <span class="badge bg-light text-muted border small">No amenities</span>
+                {% endfor %}
+              </div>
+              <div class="d-flex justify-content-between gap-2 border-top pt-3">
+                <a href="{% url 'upload_images' hotel.hotel_slug %}" class="btn btn-sm btn-outline-primary px-3 rounded-pill"><i class="bi bi-images me-1"></i>Gallery</a>
+                <a href="{% url 'edit_hotel' hotel.hotel_slug %}" class="btn btn-sm btn-outline-warning px-3 rounded-pill"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5 bg-white rounded-4 border">
+        <i class="bi bi-houses display-3 text-muted"></i>
+        <h4 class="fw-bold mt-3">No Properties Found</h4>
+        <p class="text-muted">You haven't listed any hotel properties yet.</p>
+        <a href="{% url 'add_hotel' %}" class="btn btn-success fw-bold px-4 py-2 mt-2 rounded-3">Add Your First Hotel</a>
       </div>
     {% endfor %}
   </div>
 </div>
 
-<div class="col-md-10 mx-auto card shadow-sm border-0 rounded-4 p-4">
-  <h5 class="text-center mb-3">Booking History</h5>
+<!-- Chart scripts -->
+<script>
+  const months = {{ months_labels|safe }};
+  const revenueData = {{ monthly_revenue|safe }};
+  const bookingsData = {{ monthly_bookings|safe }};
 
-  {% if hotelbook %}
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle">
-        <thead class="table-light">
-          <tr class="text-center">
-            <th scope="col">Booking No.</th>
-            <th scope="col">Hotel Name</th>
-            <th scope="col">Booking From</th>
-            <th scope="col">Booking To</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for booking in hotelbook %}
-            <tr class="text-center">
-              <td>{{ forloop.counter }}</td>
-              <td>{{ booking.hotel }}</td>
-              <td>{{ booking.booking_start_date }}</td>
-              <td>{{ booking.booking_end_date }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <div class="text-muted text-center py-3">No bookings yet.</div>
-  {% endif %}
-</div>
+  // Revenue Line Chart
+  const ctxRev = document.getElementById('revenueChart').getContext('2d');
+  new Chart(ctxRev, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Earnings (₹)',
+        data: revenueData,
+        borderColor: '#198754',
+        backgroundColor: 'rgba(25, 135, 84, 0.05)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
 
-
+  // Bookings Bar Chart
+  const ctxBookings = document.getElementById('bookingsChart').getContext('2d');
+  new Chart(ctxBookings, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Bookings',
+        data: bookingsData,
+        backgroundColor: '#0d6efd',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
 {% endblock %}

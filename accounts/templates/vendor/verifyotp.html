@@ -1,23 +1,55 @@
-{% extends "utils/base.html" %}
+{% extends "utils/vendor_base.html" %}
 
 {% block start %}
-<div class="container mt-5 pt-5 pb-5">
+<div class="container my-5 pt-5 pb-5">
+  <div class="row justify-content-center">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Colored Header -->
+        <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+          <h3 class="fw-bold m-0">Vendor Verification</h3>
+          <p class="small m-0 opacity-75">Secure partner account verification</p>
+        </div>
 
-  <div class="col-md-6 mx-auto card shadow-lg border-0 rounded-4 p-4">
-    <h4 class="text-center mb-4">Enter OTP</h4>
+        <!-- Form Card Body -->
+        <div class="card-body p-4 p-sm-5 bg-white text-center">
+          <form method="POST">
+            {% include "utils/alerts.html" %}
+            {% csrf_token %}
 
-    <form method="POST">
-      {% csrf_token %}
-      {% include "utils/alerts.html" %}
+            <div class="mb-4">
+              <i class="bi bi-shield-lock text-primary display-4" style="color: #764ba2 !important;"></i>
+            </div>
 
-      <div class="mb-3">
-        <label for="otpInput" class="form-label">OTP</label>
-        <input type="text" name="otp" class="form-control shadow-sm" id="otpInput" placeholder="Enter the OTP sent to your email" required>
+            <!-- OTP Input -->
+            <div class="mb-4 text-start">
+              <label for="otp" class="form-label fw-semibold text-muted small d-block text-center">Enter Verification Code</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-key"></i></span>
+                <input type="text" name="otp" class="form-control border-start-0 ps-0 bg-light text-center fs-4 fw-bold letter-spacing-md" placeholder="••••" maxlength="6" required id="otp">
+              </div>
+              <div class="form-text small text-center mt-2">Enter the 4-digit code sent to your registered partner email address.</div>
+            </div>
+
+            <div class="d-grid mb-3">
+              <button type="submit" class="btn btn-primary fw-bold py-2.5 rounded-3 shadow-sm" style="background-color: #764ba2; border-color: #764ba2;">
+                Verify Code
+              </button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'login_vendor' %}" class="text-secondary small text-decoration-none"><i class="bi bi-arrow-left me-1"></i> Back to Vendor Portal</a>
+          </div>
+        </div>
       </div>
-
-      <button type="submit" class="btn btn-primary w-100 shadow-sm">Submit</button>
-    </form>
+    </div>
   </div>
-
 </div>
+
+<style>
+  .letter-spacing-md {
+    letter-spacing: 0.5rem;
+  }
+</style>
 {% endblock %}

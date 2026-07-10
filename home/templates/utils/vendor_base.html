@@ -1,17 +1,18 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OYO CLONE | DASHBOARD</title>
+    <title>Hotel Booking System | Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href='https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css' rel='stylesheet' type='text/css' />
     <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>  
-
-
   </head>
+
+
 
   <body>
   {% include "utils/vendor_nav.html" %}
@@ -22,7 +23,7 @@
 
 <footer class="bg-dark mt-5 py-4">
   <div class="container text-center text-white">
-    <p class="mb-2">© 2024 <strong>OYO CLONE</strong> — All Rights Reserved</p>
+    <p class="mb-2">© 2025 <strong>Hotel Booking System</strong> — All Rights Reserved</p>
     <div class="d-flex justify-content-center gap-3 flex-wrap">
       <a href="{% url 'login_page' %}" class="text-warning text-decoration-none fw-semibold">Login User</a>
       <span class="text-light">|</span>
