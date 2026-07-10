@@ -1,0 +1,79 @@
+{% extends "utils/base.html" %}
+
+{% block start %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Title Header -->
+            <div class="text-center mb-5">
+                <h1 class="fw-bold text-dark">Database Control Panel</h1>
+                <p class="text-muted">Perform administrator database seeding and clearing operations securely.</p>
+            </div>
+
+            <!-- Seeding Card -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                            <i class="bi bi-database-fill-add fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-dark mb-1">Seed Initial Data</h4>
+                            <p class="text-muted mb-0 small">Populate your website with sample hotels, rooms, amenities, and default accounts.</p>
+                        </div>
+                    </div>
+                    <hr class="my-4 opacity-10">
+                    <p class="text-secondary small">This will create:
+                        <ul class="text-secondary small mb-4">
+                            <li>A default verified vendor account (<strong>grand_vendor</strong> / password: <strong>grand123</strong>)</li>
+                            <li>6 essential amenities (WiFi, Pool, AC, Gym, Parking, Geyser)</li>
+                            <li>4 premium sample hotels located in major tourist hubs</li>
+                            <li>Associated deluxe and luxury room types with standard pricing</li>
+                            <li>2 active promo codes (<strong>WELCOME10</strong>, <strong>FESTIVE25</strong>)</li>
+                        </ul>
+                    </p>
+                    <form method="POST" action="{% url 'db_management' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="seed">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold text-white shadow-sm">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Populate Database
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone Card -->
+            <div class="card shadow-sm border-0 rounded-4 border-top border-danger border-4 overflow-hidden">
+                <div class="card-body p-5 bg-light bg-opacity-50">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-3 me-3">
+                            <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-danger mb-1">Danger Zone</h4>
+                            <p class="text-muted mb-0 small">Delete existing database listings, bookings, and customer/vendor accounts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning border-0 rounded-3 small mb-4" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i><strong>Warning:</strong> This operation is permanent and irreversible. All bookings, hotels, reviews, wishlists, customer records, and vendor records will be deleted. **Your admin/superuser accounts will not be affected.**
+                    </div>
+
+                    <form method="POST" action="{% url 'db_management' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="clear">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger btn-lg fw-bold shadow-sm" onclick="return confirm('Are you absolutely sure you want to delete all database entries? This action cannot be undone.');">
+                                <i class="bi bi-trash3-fill me-2"></i> Wipe Entire Database
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

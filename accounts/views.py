@@ -1,10 +1,11 @@
 from django.shortcuts import render,redirect ,HttpResponse,HttpResponseRedirect
-from .models import HotelUser , HotelVendor,Hotel,Ameneties,HotelImages,HotelBooking
+from .models import HotelUser , HotelVendor,Hotel,Ameneties,HotelImages,HotelBooking, RoomType, PromoCode, Wishlist, Review
 from django.db.models import Q
 from django.contrib import messages
 from .utils import generateRandomToken,sendEmailToken,sendOTPtoEmail,sendEmailToken_vendor,generateSlug
 from django.contrib.auth import authenticate ,login,logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.text import slugify
 import random
 from django.core.mail import send_mail
 def login_page(request):
@@ -625,5 +626,163 @@ def check_promo(request):
         })
     except PromoCode.DoesNotExist:
         return JsonResponse({'valid': False, 'message': 'Invalid or expired promo code.'})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def db_management(request):
+    if request.method == "POST":
+        action = request.POST.get('action')
+        
+        if action == "seed":
+            try:
+                # Copy images from static seed source to media destination (for production environments)
+                import shutil
+                from django.conf import settings
+                
+                media_hotels_dir = os.path.join(settings.MEDIA_ROOT, 'hotels')
+                static_seed_dir = os.path.join(settings.BASE_DIR, 'static', 'seed_images')
+                
+                os.makedirs(media_hotels_dir, exist_ok=True)
+                for img_idx in range(1, 6):
+                    src_file = os.path.join(static_seed_dir, f'hotel_{img_idx}.jpg')
+                    dest_file = os.path.join(media_hotels_dir, f'hotel_{img_idx}.jpg')
+                    if os.path.exists(src_file) and not os.path.exists(dest_file):
+                        shutil.copy(src_file, dest_file)
+
+                # 1. Create or get default vendor
+                vendor, created = HotelVendor.objects.get_or_create(
+                    username="grand_vendor",
+                    defaults={
+                        "email": "vendor@grandhotels.com",
+                        "phone_number": "9876543210",
+                        "business_name": "Grand Hotels Group",
+                        "is_verified": True
+                    }
+                )
+                if created:
+                    vendor.set_password("grand123")
+                    vendor.save()
+
+                # 2. Create standard amenities
+                amenity_list = [
+                    ("WiFi", "hotels/wifi.png"),
+                    ("Pool", "hotels/swimming-pool.png"),
+                    ("AC", "hotels/air-conditioner.png"),
+                    ("Gym", "hotels/treadmill.png"),
+                    ("Parking", "hotels/parking.png"),
+                    ("Geyser", "hotels/gas-geyser.png")
+                ]
+                
+                created_amenities = []
+                for name, icon_path in amenity_list:
+                    amenity, _ = Ameneties.objects.get_or_create(
+                        name=name,
+                        defaults={"icon": icon_path}
+                    )
+                    created_amenities.append(amenity)
+
+                # 3. Create 30 sample hotels dynamically
+                locations = ["Goa", "Mumbai", "Manali", "Jaipur", "Delhi", "Bangalore", "Shimla", "Udaipur", "Ooty", "Munnar"]
+                prefixes = ["Grand", "Breeze", "Royal", "Alpine", "Sunset", "Golden", "Silver", "Ocean", "Mountain", "Vista"]
+                suffixes = ["Palace", "Resort", "Inn", "Lodge", "Manor", "Retreat", "Haven", "Suites", "Castle", "House"]
+                
+                for i in range(30):
+                    pref = prefixes[i % len(prefixes)]
+                    suff = suffixes[(i // len(prefixes)) % len(suffixes)]
+                    loc = locations[i % len(locations)]
+                    name = f"{pref} {suff}"
+                    
+                    hotel_slug = slugify(f"{name} {i+1}")
+                    description = f"Welcome to {name} {i+1}. Enjoy a luxurious and comfortable stay at our premium location in {loc}. We offer state-of-the-art amenities, customized dining experiences, and spectacular surrounding views."
+                    price = float(2000 + (i * 150) % 5000)
+                    offer_price = price - 200.0
+                    
+                    hotel, h_created = Hotel.objects.get_or_create(
+                        hotel_slug=hotel_slug,
+                        defaults={
+                            "hotel_name": f"{name} {i+1}",
+                            "hotel_description": description,
+                            "hotel_location": f"{loc}, India",
+                            "hotel_price": price,
+                            "hotel_offer_price": offer_price,
+                            "hotel_owner": vendor,
+                            "is_active": True
+                        }
+                    )
+                    
+                    # Distribute amenities
+                    hotel_amenities = []
+                    if i % 2 == 0: hotel_amenities.append("WiFi")
+                    if i % 3 == 0: hotel_amenities.append("Pool")
+                    if i % 5 == 0: hotel_amenities.append("AC")
+                    if i % 4 == 0: hotel_amenities.append("Gym")
+                    if i % 7 == 0: hotel_amenities.append("Parking")
+                    if i % 6 == 0: hotel_amenities.append("Geyser")
+                    if not hotel_amenities:
+                        hotel_amenities.append("WiFi")
+                        
+                    for am_name in hotel_amenities:
+                        amenity = next((x for x in created_amenities if x.name == am_name), None)
+                        if amenity:
+                            hotel.ameneties.add(amenity)
+                            
+                    # Add Room Types
+                    RoomType.objects.get_or_create(
+                        hotel=hotel,
+                        name="Deluxe Room",
+                        defaults={"price": price, "capacity": 2, "total_rooms": 5}
+                    )
+                    RoomType.objects.get_or_create(
+                        hotel=hotel,
+                        name="Premium Suite",
+                        defaults={"price": price * 1.5, "capacity": 3, "total_rooms": 3}
+                    )
+                    
+                    # Associate ALL 5 images with this hotel
+                    for img_idx in range(1, 6):
+                        image_filename = f"hotels/hotel_{img_idx}.jpg"
+                        HotelImages.objects.get_or_create(
+                            hotel=hotel,
+                            image=image_filename
+                        )
+
+                # 4. Create promo codes
+                import datetime
+                PromoCode.objects.get_or_create(
+                    code="WELCOME10",
+                    defaults={"discount_percentage": 10.0, "active": True, "valid_until": datetime.date(2027, 12, 31)}
+                )
+                PromoCode.objects.get_or_create(
+                    code="FESTIVE25",
+                    defaults={"discount_percentage": 25.0, "active": True, "valid_until": datetime.date(2027, 12, 31)}
+                )
+
+                messages.success(request, "Database seeded successfully! Demo vendor, amenities, hotels, room types, and promo codes are now live.")
+            except Exception as e:
+                messages.error(request, f"Error seeding database: {str(e)}")
+
+        elif action == "clear":
+            try:
+                # Delete related entities
+                HotelBooking.objects.all().delete()
+                Wishlist.objects.all().delete()
+                Review.objects.all().delete()
+                RoomType.objects.all().delete()
+                HotelImages.objects.all().delete()
+                Hotel.objects.all().delete()
+                PromoCode.objects.all().delete()
+                Ameneties.objects.all().delete()
+                
+                # Delete accounts safely (non-superusers only)
+                HotelVendor.objects.filter(is_superuser=False).delete()
+                HotelUser.objects.filter(is_superuser=False).delete()
+
+                messages.success(request, "Database cleared successfully! All listings, bookings, reviews, and customer/vendor accounts have been wiped.")
+            except Exception as e:
+                messages.error(request, f"Error wiping database: {str(e)}")
+
+        return redirect("db_management")
+
+    return render(request, "db_management.html")
 
 

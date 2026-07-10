@@ -44,5 +44,6 @@ path('delete_booking/<id>',views.delete_booking,name='delete_booking'),
     path('wishlist/', views.wishlist_view, name='wishlist_view'),
     path('wishlist/toggle/<id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('check-promo/', views.check_promo, name='check_promo'),
+    path('db-management/', views.db_management, name='db_management'),
 ]
 

@@ -125,6 +125,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
+LOGIN_URL = '/account/login/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
