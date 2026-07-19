@@ -28,14 +28,14 @@ def send_mail_async(subject, message, from_email, recipient_list, fail_silently=
 def sendEmailToken(email, token):
     subject = "Verify Your Email Address"
     message = f"""Hi, please verify your email account by clicking this link: 
-    https://hotel-booking-system.onrender.com/account/verify-account/{token}
+    {settings.SITE_URL}/account/verify-account/{token}
     """
     send_mail_async(subject, message, settings.EMAIL_HOST_USER, [email], fail_silently=True)
 
 def sendEmailToken_vendor(email, token):
     subject = "Verify Your Email Address"
     message = f"""Hi, please verify your email account by clicking this link: 
-    https://hotel-booking-system.onrender.com/account/verify-account_vendor/{token}
+    {settings.SITE_URL}/account/verify-account_vendor/{token}
     """
     send_mail_async(subject, message, settings.EMAIL_HOST_USER, [email], fail_silently=True)
 

@@ -137,3 +137,12 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD =os.getenv('EMAIL_HOST_PASSWORD')
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
+
+# Site URL for verification links and external services
+SITE_URL = os.getenv('SITE_URL')
+if not SITE_URL:
+    if DEBUG:
+        SITE_URL = 'http://127.0.0.1:8000'
+    else:
+        SITE_URL = 'https://hotel-booking-system.onrender.com'
+
